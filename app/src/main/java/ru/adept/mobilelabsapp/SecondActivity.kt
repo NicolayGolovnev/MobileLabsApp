@@ -1,11 +1,9 @@
 package ru.adept.mobilelabsapp
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,27 +15,16 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import ru.adept.mobilelabsapp.ui.theme.MobileLabsAppTheme
 
-class MainActivity : ComponentActivity() {
-
-    private val intentActivityHandler = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
-            val resultValue = result.data?.getStringExtra("text")
-
-            resultValue?.let { editedText.value = it }
-//            Toast.makeText(this.applicationContext, "New text - $editedText", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private var editedText: MutableState<String> = mutableStateOf("")
-
+class SecondActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -48,31 +35,34 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainCompose(editedText)
+                    MainCompose(intent = intent)
                 }
             }
         }
     }
 
     @Composable
-    fun MainCompose(editText: MutableState<String>) {
-        val context: Context = LocalContext.current
+    fun MainCompose(intent: Intent) {
+        var editedText by remember {
+            mutableStateOf(intent.extras?.getString("text") ?: "")
+        }
 
         Column(verticalArrangement = Arrangement.Top, horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = "Второе окно")
+            Spacer(modifier = Modifier.size(60.dp))
             TextField(
-                value = editText.value,
-                onValueChange = { editText.value = it },
+                value = editedText,
+                onValueChange = { editedText = it },
                 label = { Text("Напиши сюда текст") }
             )
             Spacer(modifier = Modifier.size(30.dp))
             Button(onClick = {
-                val secondIntent = Intent(context, SecondActivity::class.java)
-                secondIntent.putExtra("text", editText.value)
+                intent.putExtra("text", editedText)
 
-                intentActivityHandler.launch(secondIntent)
-//                Toast.makeText(context, "Launch activity", Toast.LENGTH_SHORT).show()
+                setResult(RESULT_OK, intent)
+                finish()
             }) {
-                Text(text = "Переслать")
+                Text(text = "Переслать обратно")
             }
         }
     }
