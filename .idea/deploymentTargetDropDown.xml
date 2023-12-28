@@ -5,6 +5,12 @@
       <entry key="GreetingPreview">
         <State />
       </entry>
+      <entry key="TimestampServiceComposePreview">
+        <State />
+      </entry>
+      <entry key="UnboundComposePreview">
+        <State />
+      </entry>
       <entry key="app">
         <State />
       </entry>
